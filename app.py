@@ -1,3 +1,4 @@
+import streamlit as st
 from flask import Flask, render_template, request, jsonify
 import bs4
 import requests
@@ -5,6 +6,17 @@ import shutil
 import os
 
 app = Flask(__name__)
+with st.container():
+    st.subheader("HELLO, WELCOME TO OUR SITE :wave:")
+    st.title("A BIG DATA TEAM FROM C-DAC, Bengaluru")
+    st.write(
+        """We are passionate about finding ways to use Python and BIG DATA .  
+           We are aslo provide solutions for Big Data/ML.
+          
+            
+        """
+    )
+    st.write('------')
 
 @app.route('/')
 def index():
