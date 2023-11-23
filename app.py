@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 import bs4
 import requests
@@ -6,6 +5,7 @@ import shutil
 import os
 
 app = Flask(__name__)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -68,4 +68,4 @@ def scrape_images():
     return jsonify(response_data)
  
 if __name__ == '__main__':
-    app.run(debug=Flase)
+    app.run(debug=False)
