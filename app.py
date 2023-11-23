@@ -68,4 +68,4 @@ def scrape_images():
     return jsonify(response_data)
  
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=Flase)
