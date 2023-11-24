@@ -68,4 +68,4 @@ def scrape_images():
     return jsonify(response_data)
  
 if __name__ == '__main__':
-    app.run(host="https://image-scraper.streamlit.app",port=5748)
+   app.run(host='0.0.0.0', port=8080)
