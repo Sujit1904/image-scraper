@@ -4,17 +4,99 @@ import bs4
 import shutil
 import os
 
-st.title('Image Scraper')
+# Set page title and favicon
+st.set_page_config(
+    page_title="Image Scraper",
+    page_icon=":camera:",
+    layout="centered", 
+)
+# Apply the custom background color using CSS
+st.markdown(
+    f"""
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }}
+        .stApp {{
+            max-width: 600px;
+            margin: 0 auto;
+        }}
+        .stButton {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }}
+        .stButton>button {{
+           background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }}
+        .stButton>button:hover {{
+            background-color: #0056b3;
+        }}
+        .stTextInput>div>div>input,
+        .stNumberInput>div>div>input {{
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #ecf0f1;
+        }}
+        .stError>div,
+        .stSuccess>div {{
+            color: #fff;
+            margin-top: 10px;
+            font-size: 18px;
+        }}
+        #loading-spinner {{
+            display: none;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2ecc71;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }}
+        @keyframes spin {{
+            0% {{ transform: rotate(0deg); }}
+            100% {{ transform: rotate(360deg); }}
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-name = st.text_input('Search Term:', '')
+# Header
+st.title('Image Scraper :mag_right:')
+st.markdown("""Scrape images from Google Images !!!""")
+
+# User input fields
+name = st.text_input('Search Images:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
 
-if st.button('Scrape Images'):
+# Button to trigger image scraping
+scrape_button = st.button('Scrape Images')
+
+# Loading spinner
+loading_spinner = st.empty()
+
+if scrape_button:
     if not name or size <= 0:
-        st.error('Invalid input parameters')
+        st.error('Invalid input parameters. Please provide a valid search term and a positive number of images.')
     else:
-        st.info('Please wait...')
-        st.write('Downloading images...')
+        loading_spinner.text('Downloading images...')
+        loading_spinner.markdown('<div id="loading-spinner"></div>', unsafe_allow_html=True)
 
         GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
         URL_input = GOOGLE_IMAGE + name
@@ -54,5 +136,5 @@ if st.button('Scrape Images'):
             except:
                 pass
 
+        loading_spinner.empty()
         st.success('Downloaded successfully')
-        st.write(f'Downloaded Image URLs: {image_urls}')
