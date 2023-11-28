@@ -57,12 +57,6 @@ st.markdown(
             font-size: 16px;
             background-color: #ecf0f1;  /* Light grey for input field */
         }}
-        .stTextInput>div>div>input {{
-            border-radius: 8px;
-            padding: 15px;
-            font-size: 16px;
-            background-color: #ecf0f1;  /* Light grey for input field */
-        }}
         .stError>div {{
             color: #8B0000;
             margin-top: 10px;
@@ -102,13 +96,12 @@ st.markdown(
 st.markdown('<div class="stTitle">Image Scraper :mag_right:</div>', unsafe_allow_html=True)
 st.markdown("""
     This app allows you to scrape images from Google Images.
-    Enter a search term, the number of images you want to download, and the path to save them.
+    Enter a search term and the number of images you want to download.
 """)
 
 # User input fields
 name = st.text_input('Search Term:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
-download_path = st.text_input('Download Path:', './images/')
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
@@ -122,6 +115,10 @@ if scrape_button:
     else:
         loading_spinner.text('Downloading images...')
         loading_spinner.markdown('<div id="loading-spinner"></div>', unsafe_allow_html=True)
+
+        # Set the path to save images
+        images_path = os.path.join(st._cli.get_main_script_path(), 'images', name)
+        os.makedirs(images_path, exist_ok=True)
 
         GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
         URL_input = GOOGLE_IMAGE + name
@@ -147,10 +144,7 @@ if scrape_button:
                 elif ext.startswith('.svg'):
                     ext = '.svg'
                 data = requests.get(images, stream=True)
-                newpath = os.path.join(download_path, name)
-                if not os.path.exists(newpath):
-                    os.makedirs(newpath)
-                filename = os.path.join(newpath, str(i) + ext)
+                filename = os.path.join(images_path, f'{i}{ext}')
                 with open(filename, 'wb') as file:
                     shutil.copyfileobj(data.raw, file)
                 i += 1
@@ -161,8 +155,10 @@ if scrape_button:
             except:
                 pass
 
-        loading_spinner.empty()
+        loading_spinner.empty()  # Clear the loading spinner
         st.success('Downloaded successfully')
 
-# Add a link to the GitHub repository for transparency and collaboration
-st.markdown('<div style="text-align: center; padding: 20px;"><a href="https://github.com/yourusername/your-repo" target="_blank">GitHub Repository</a></div>', unsafe_allow_html=True)
+# Display the downloaded image URLs
+if image_urls:
+    st.markdown('### Downloaded Image URLs:')
+    st.write(image_urls)
