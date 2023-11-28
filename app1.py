@@ -4,29 +4,27 @@ import bs4
 import shutil
 import os
 
-# Set page title and favicon
+# Set page title and favicon with a camera icon
 st.set_page_config(
     page_title="Image Scraper",
-    page_icon=":camera:",
-    layout="centered", 
+    page_icon="📷",  # Camera icon
+    layout="wide",  # Use wide layout for a better background color display
 )
+
+# Define a custom background color
+background_color = "#3498db"
+
 # Apply the custom background color using CSS
 st.markdown(
     f"""
     <style>
         body {{
-            font-family: Arial, sans-serif;
-            background: linear-gradient(45deg, #3498db, #8e44ad);
+            background-color: {background_color};
             margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Arial', sans-serif;
         }}
         .stApp {{
             max-width: 600px;
-            max-height:700px;
             margin: 0 auto;
         }}
         .stButton {{
@@ -36,33 +34,49 @@ st.markdown(
             margin-top: 20px;
         }}
         .stButton>button {{
-           background-color: #007bff;
             color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            background-color: #2ecc71;  /* Green color for button */
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }}
         .stButton>button:hover {{
-            background-color: #0056b3;
+            background-color: #27ae60;  /* Darker green on hover */
         }}
-        .stTextInput>div>div>input,
+        .stTextInput>div>div>input {{
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #ecf0f1;  /* Light grey for input field */
+        }}
         .stNumberInput>div>div>input {{
             border-radius: 8px;
             padding: 15px;
             font-size: 16px;
-            background-color: #ecf0f1;
+            background-color: #ecf0f1;  /* Light grey for input field */
         }}
-        .stError>div,
+        .stTextInput>div>div>input {{
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #ecf0f1;  /* Light grey for input field */
+        }}
+        .stError>div {{
+            color: #8B0000;
+            margin-top: 10px;
+            font-size: 18px;
+        }}
         .stSuccess>div {{
-            color: #fff;
+            color: #008000;
             margin-top: 10px;
             font-size: 18px;
         }}
         #loading-spinner {{
             display: none;
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #2ecc71;
+            border-top: 5px solid #2ecc71;  /* Green color for spinner */
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -73,18 +87,28 @@ st.markdown(
             0% {{ transform: rotate(0deg); }}
             100% {{ transform: rotate(360deg); }}
         }}
+        .stTitle {{
+            text-align: center;
+            padding: 20px;
+            color: #fff;
+            font-size: 30px;
+        }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 # Header
-st.title('Image Scraper :mag_right:')
-st.markdown("""Scrape images from Google Images !!!""")
+st.markdown('<div class="stTitle">Image Scraper :mag_right:</div>', unsafe_allow_html=True)
+st.markdown("""
+    This app allows you to scrape images from Google Images.
+    Enter a search term, the number of images you want to download, and the path to save them.
+""")
 
 # User input fields
-name = st.text_input('Search Images:')
+name = st.text_input('Search Term:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
+download_path = st.text_input('Download Path:', './images/')
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
@@ -123,10 +147,10 @@ if scrape_button:
                 elif ext.startswith('.svg'):
                     ext = '.svg'
                 data = requests.get(images, stream=True)
-                newpath = f'./images/{name}/'
+                newpath = os.path.join(download_path, name)
                 if not os.path.exists(newpath):
                     os.makedirs(newpath)
-                filename = newpath + str(i) + ext
+                filename = os.path.join(newpath, str(i) + ext)
                 with open(filename, 'wb') as file:
                     shutil.copyfileobj(data.raw, file)
                 i += 1
@@ -139,3 +163,6 @@ if scrape_button:
 
         loading_spinner.empty()
         st.success('Downloaded successfully')
+
+# Add a link to the GitHub repository for transparency and collaboration
+st.markdown('<div style="text-align: center; padding: 20px;"><a href="https://github.com/yourusername/your-repo" target="_blank">GitHub Repository</a></div>', unsafe_allow_html=True)
