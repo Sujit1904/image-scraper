@@ -3,6 +3,7 @@ import requests
 import bs4
 import shutil
 import os
+import zipfile
 
 # Apply the custom background color using CSS
 st.markdown(
@@ -169,3 +170,11 @@ if scrape_button:
 
         loading_spinner.empty()
         st.success('Downloaded successfully')
+
+        # Create a zip file with the downloaded images
+        zip_file_path = os.path.join(download_path, f'{name}_images.zip')
+        with zipfile.ZipFile(zip_file_path, 'w') as zipf:
+            for image_path in image_urls:
+                zipf.write(image_path, os.path.basename(image_path))
+
+        # Provide a link to download the zip file
