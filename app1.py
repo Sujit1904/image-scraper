@@ -4,28 +4,38 @@ import bs4
 import shutil
 import os
 
-# Set page title and favicon with a camera icon
-st.set_page_config(
-    page_title="Image Scraper",
-    page_icon="📷",  # Camera icon
-    layout="wide",  # Use wide layout for a better background color display
-)
 
-# Define a custom background color
-background_color = "#3498db"
 
 # Apply the custom background color using CSS
 st.markdown(
     f"""
     <style>
-        body {{
-            background-color: {background_color};
+         body {{
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #3498db, #8e44ad);
             margin: 0;
-            font-family: 'Arial', sans-serif;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }}
+
         .stApp {{
-            max-width: 600px;
-            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.8);
+           
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            margin:0 auto;
+            text-align: center;
+        }}
+        
+        input {{
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }}
         .stButton {{
             display: flex;
@@ -52,6 +62,12 @@ st.markdown(
             background-color: #ecf0f1;  /* Light grey for input field */
         }}
         .stNumberInput>div>div>input {{
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 16px;
+            background-color: #ecf0f1;  /* Light grey for input field */
+        }}
+        .stTextInput>div>div>input {{
             border-radius: 8px;
             padding: 15px;
             font-size: 16px;
@@ -93,24 +109,21 @@ st.markdown(
 )
 
 # Header
-st.markdown('<div class="stTitle">Image Scraper :mag_right:</div>', unsafe_allow_html=True)
+st.title('Image Scraper')
 st.markdown("""
-    This app allows you to scrape images from Google Images.
-    Enter a search term and the number of images you want to download.
+    Scrape images from Google Images  !!!
 """)
 
 # User input fields
-name = st.text_input('Search Term:')
+name = st.text_input('Search Images:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
+download_path = st.text_input('Download Path:', './images/')
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
 
 # Loading spinner
 loading_spinner = st.empty()
-
-# List to store downloaded image URLs
-image_urls = []
 
 if scrape_button:
     if not name or size <= 0:
@@ -119,10 +132,6 @@ if scrape_button:
         loading_spinner.text('Downloading images...')
         loading_spinner.markdown('<div id="loading-spinner"></div>', unsafe_allow_html=True)
 
-        # Set the path to save images
-        images_path = os.path.join(st._cli.get_main_script_path(), 'images', name)
-        os.makedirs(images_path, exist_ok=True)
-
         GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
         URL_input = GOOGLE_IMAGE + name
         URLdata = requests.get(URL_input)
@@ -130,6 +139,7 @@ if scrape_button:
         img = soup.find_all('img')
 
         i = 0
+        image_urls = []
 
         for link in img:
             try:
@@ -146,7 +156,10 @@ if scrape_button:
                 elif ext.startswith('.svg'):
                     ext = '.svg'
                 data = requests.get(images, stream=True)
-                filename = os.path.join(images_path, f'{i}{ext}')
+                newpath = os.path.join(download_path, name)
+                if not os.path.exists(newpath):
+                    os.makedirs(newpath)
+                filename = os.path.join(newpath, str(i) + ext)
                 with open(filename, 'wb') as file:
                     shutil.copyfileobj(data.raw, file)
                 i += 1
@@ -157,10 +170,5 @@ if scrape_button:
             except:
                 pass
 
-        loading_spinner.empty()  # Clear the loading spinner
+        loading_spinner.empty()
         st.success('Downloaded successfully')
-
-# Display the downloaded image URLs
-if image_urls:
-    st.markdown('### Downloaded Image URLs:')
-    st.write(image_urls)
