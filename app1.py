@@ -79,7 +79,7 @@ st.markdown(
         .stSuccess>div {{
             color: #008000;
             margin-top: 10px;
-            font-size: 18px;
+            font-size: 18px.
         }}
         #loading-spinner {{
             display: none;
@@ -115,7 +115,11 @@ st.markdown("""
 # User input fields
 name = st.text_input('Search Images:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
-download_path = st.text_input('Download Path:', './images/')  # Default path is './images/'
+custom_path_checkbox = st.checkbox('Use Custom Path')
+if custom_path_checkbox:
+    download_path = st.text_input('Download Path:', 'E:\\workplace')  # Default path is 'E:\\workplace'
+else:
+    download_path = './images/'
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
@@ -176,5 +180,3 @@ if scrape_button:
         with zipfile.ZipFile(zip_file_path, 'w') as zipf:
             for image_path in image_urls:
                 zipf.write(image_path, os.path.basename(image_path))
-
-        # Provide a link to download the zip file
