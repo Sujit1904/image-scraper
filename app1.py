@@ -4,8 +4,6 @@ import bs4
 import shutil
 import os
 
-
-
 # Apply the custom background color using CSS
 st.markdown(
     f"""
@@ -23,11 +21,10 @@ st.markdown(
 
         .stApp {{
             background-color: rgba(255, 255, 255, 0.8);
-           
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 400px;
-            margin:0 auto;
+            margin: 0 auto;
             text-align: center;
         }}
         
