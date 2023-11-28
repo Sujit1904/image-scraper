@@ -78,7 +78,7 @@ st.markdown(
         .stSuccess>div {{
             color: #008000;
             margin-top: 10px;
-            font-size: 18px.
+            font-size: 18px;
         }}
         #loading-spinner {{
             display: none;
@@ -108,7 +108,7 @@ st.markdown(
 # Header
 st.title('Image Scraper')
 st.markdown("""
-    Scrape images from Google Images  !!!
+    Scrape images from Google Images!!!
 """)
 
 # User input fields
