@@ -3,7 +3,6 @@ import requests
 import bs4
 import shutil
 import os
-import zipfile
 
 # Apply the custom background color using CSS
 st.markdown(
@@ -115,11 +114,7 @@ st.markdown("""
 # User input fields
 name = st.text_input('Search Images:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
-custom_path_checkbox = st.checkbox('Use Custom Path')
-if custom_path_checkbox:
-    download_path = st.text_input('Download Path:', 'E:\\workplace')  # Default path is 'E:\\workplace'
-else:
-    download_path = './images/'
+download_path = st.text_input('Download Path:', './images/')
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
@@ -174,9 +169,3 @@ if scrape_button:
 
         loading_spinner.empty()
         st.success('Downloaded successfully')
-
-        # Create a zip file with the downloaded images
-        zip_file_path = os.path.join(download_path, f'{name}_images.zip')
-        with zipfile.ZipFile(zip_file_path, 'w') as zipf:
-            for image_path in image_urls:
-                zipf.write(image_path, os.path.basename(image_path))
