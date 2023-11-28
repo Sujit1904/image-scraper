@@ -114,7 +114,7 @@ st.markdown("""
 # User input fields
 name = st.text_input('Search Images:')
 size = st.number_input('Number of Images:', min_value=1, step=1)
-download_path = st.text_input('Download Path:', './images/')
+download_path = st.text_input('Download Path:', './images/')  # Default path is './images/'
 
 # Button to trigger image scraping
 scrape_button = st.button('Scrape Images')
