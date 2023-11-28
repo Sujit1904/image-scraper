@@ -26,6 +26,7 @@ st.markdown(
         }}
         .stApp {{
             max-width: 600px;
+            max-height:700px;
             margin: 0 auto;
         }}
         .stButton {{
