@@ -109,6 +109,9 @@ scrape_button = st.button('Scrape Images')
 # Loading spinner
 loading_spinner = st.empty()
 
+# List to store downloaded image URLs
+image_urls = []
+
 if scrape_button:
     if not name or size <= 0:
         st.error('Invalid input parameters. Please provide a valid search term and a positive number of images.')
@@ -127,7 +130,6 @@ if scrape_button:
         img = soup.find_all('img')
 
         i = 0
-        image_urls = []
 
         for link in img:
             try:
