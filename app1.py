@@ -2,10 +2,13 @@ import streamlit as st
 import os
 import requests
 from bs4 import BeautifulSoup
+import zipfile
+from io import BytesIO
+import base64
 import shutil
 
 # Function to scrape and save images
-def scrape_and_save_images(name, size, download_path):
+def scrape_and_save_images(name, size):
     GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
 
     URL_input = GOOGLE_IMAGE + name
@@ -34,40 +37,45 @@ def scrape_and_save_images(name, size, download_path):
                 ext = '.svg'
             data = requests.get(images, stream=True)
 
-            # Combine the user-specified download path with the filename
-            filename = os.path.join(download_path, f'{i}{ext}')
+            # Create a BytesIO object to store the image data
+            img_bytes = BytesIO(data.content)
 
-            with open(filename, 'wb') as file:
-                shutil.copyfileobj(data.raw, file)
-
+            # Append the BytesIO object to the list
+            image_urls.append((f'{i}{ext}', img_bytes))
+            
             i += 1
-            image_urls.append(filename)
 
             if i == size:
                 break
         except:
             pass
 
-    response_data = {
-        'message': 'Downloaded successfully',
-        'image_urls': image_urls,
-    }
-
-    return response_data
+    return image_urls
 
 # Streamlit app
 def main():
     st.title('Image Scraper Streamlit App')
 
-    # Get user input for name, size, and download path
-    name = st.text_input('Enter search term:')
+    # Get user input for name and size
+    name = st.text_input('Enter Image:')
     size = st.number_input('Enter the number of images:', min_value=1, step=1)
-    download_path = st.text_input('Enter the download path:')
 
     # Call the function with user inputs
     if st.button('Scrape Images'):
-        result = scrape_and_save_images(name, size, download_path)
-        st.write(result)
+        image_data = scrape_and_save_images(name, size)
+
+        # Create a zip file containing the images
+        with zipfile.ZipFile('images.zip', 'w') as zipf:
+            for img_name, img_bytes in image_data:
+                zipf.writestr(img_name, img_bytes.getvalue())
+
+        # Display a download button for the zip file
+        st.download_button(
+            label='Download Images',
+            data=zipf.read('images.zip'),
+            file_name='images.zip',
+            mime='application/zip',
+        )
 
 if __name__ == '__main__':
     main()
