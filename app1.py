@@ -1,3 +1,4 @@
+import streamlit as st
 import os
 import requests
 from bs4 import BeautifulSoup
@@ -8,7 +9,7 @@ def scrape_and_save_images(name, size, download_path):
     GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
 
     URL_input = GOOGLE_IMAGE + name
-    print('Fetching from URL:', URL_input)
+    st.write('Fetching from URL:', URL_input)
 
     URLdata = requests.get(URL_input)
     soup = BeautifulSoup(URLdata.text, "html.parser")
@@ -38,7 +39,7 @@ def scrape_and_save_images(name, size, download_path):
 
             with open(filename, 'wb') as file:
                 shutil.copyfileobj(data.raw, file)
-            
+
             i += 1
             image_urls.append(filename)
 
@@ -54,11 +55,19 @@ def scrape_and_save_images(name, size, download_path):
 
     return response_data
 
-# Get user input for name, size, and download path
-name = input('Enter search term: ')
-size = int(input('Enter the number of images: '))
-download_path = input('Enter the download path: ')
+# Streamlit app
+def main():
+    st.title('Image Scraper Streamlit App')
 
-# Call the function with user inputs
-result = scrape_and_save_images(name, size, download_path)
-print(result)
+    # Get user input for name, size, and download path
+    name = st.text_input('Enter search term:')
+    size = st.number_input('Enter the number of images:', min_value=1, step=1)
+    download_path = st.text_input('Enter the download path:')
+
+    # Call the function with user inputs
+    if st.button('Scrape Images'):
+        result = scrape_and_save_images(name, size, download_path)
+        st.write(result)
+
+if __name__ == '__main__':
+    main()
