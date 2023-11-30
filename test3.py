@@ -1,28 +1,37 @@
-import streamlit as st
-import requests
+from flask import Flask, render_template, request, jsonify
 import bs4
+import requests
 import os
-from google.cloud import storage
 
-st.title('Image Scraper')
+app = Flask(__name__)
 
-name = st.text_input('Search Term:', '')
-size = st.number_input('Number of Images:', min_value=1, step=1)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-if st.button('Scrape Images'):
+@app.route('/scrape_images', methods=['POST'])
+def scrape_images():
+    data = request.get_json()
+    name = data.get('name', '')
+    size = int(data.get('size', 0))
+
     if not name or size <= 0:
-        st.error('Invalid input parameters')
-    else:
-        st.info('Please wait...')
-        st.write('Downloading images...')
+        return jsonify({'error': 'Invalid input parameters'})
 
-        GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
-        URL_input = GOOGLE_IMAGE + name
+    GOOGLE_IMAGE = 'https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&q='
+
+    URL_input = GOOGLE_IMAGE + name
+    print('Fetching from URL:', URL_input)
+
+    try:
         URLdata = requests.get(URL_input)
+        URLdata.raise_for_status()  # Check for HTTP errors
         soup = bs4.BeautifulSoup(URLdata.text, "html.parser")
         img = soup.find_all('img')
 
         i = 0
+        print('Please wait...')
+
         image_urls = []
 
         for link in img:
@@ -40,26 +49,28 @@ if st.button('Scrape Images'):
                 elif ext.startswith('.svg'):
                     ext = '.svg'
                 data = requests.get(images, stream=True)
-                
-                # Save the image to a local file
-                filename = f'./images/{name}/{i}{ext}'
-                with open(filename, 'wb') as file:
-                    file.write(data.content)
-
-                # Upload the image to a cloud storage bucket
-                upload_image_to_bucket(filename, f'{name}/{i}{ext}')
-
+                download_path = os.path.join('static', 'images', name, f'{i}{ext}')  
                 i += 1
-                image_urls.append(filename)
+                image_urls.append(download_path)
+                os.makedirs(os.path.dirname(download_path), exist_ok=True)
+                with open(download_path, 'wb') as file:
+                    for chunk in data.iter_content(chunk_size=1024):
+                        file.write(chunk)
 
                 if i == size:
                     break
-            except:
-                pass
+            except Exception as e:
+                print(f"Error: {e}")
 
-        st.success('Downloaded successfully')
+        response_data = {
+            'message': 'Downloaded successfully',
+            'image_urls': image_urls,
+        }
 
-        # Display download links
-        st.write('Downloaded Image URLs:')
-        for i, image_url in enumerate(image_urls):
-            st.markdown(f'[Download Image {i + 1}]({image_url})', unsafe_allow_html=True)
+        return jsonify(response_data)
+
+    except requests.RequestException as e:
+        return jsonify({'error': f'Error fetching data: {str(e)}'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=False)
